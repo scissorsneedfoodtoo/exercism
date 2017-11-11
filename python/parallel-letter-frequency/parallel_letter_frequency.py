@@ -1,31 +1,15 @@
+import multiprocessing
+from collections import Counter
+
+def tally_letters(text):
+    tallied = Counter(text)
+    return tallied
+
 def calculate(text_input):
-    import socket
-    import multiprocessing
 
-    workers = 4
-    output = {}
-    dirtyText = ''
-    checkText = ''
+    checkText = ''.join(text_input).lower()
+    checkText = list(filter(lambda char: char.isalpha(), checkText))
 
-    # convert text_input into string
-    for entry in text_input:
-        dirtyText += entry
-
-    # sanitize dirtyText
-    for char in dirtyText:
-        if char.isalpha():
-            checkText += char.lower()
-
-    def tallyLetters(checkText):
-        for char in checkText:
-            if char not in output:
-                output[char] = 1
-            else:
-                output[char] += 1
-
-    with multiprocessing.Pool(processes=workers) as pool:
-        results = pool.map_async(tallyLetters(checkText), checkText)
-        results.wait()
-
-
-    return output
+    with multiprocessing.Pool(processes=4) as pool:
+        results = pool.map(tally_letters, checkText)
+        return sum(results, Counter())
